@@ -106,5 +106,5 @@ def _recognize_face(unknown_encoding, loaded_encodings):
     if votes:
         return votes.most_common(1)[0][0]
 
-recognize_faces("training_image.png")
+recognize_faces("data.png")
 
