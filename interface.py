@@ -32,7 +32,7 @@ class TimeTable:
     
     def get_current_time(self):
         current_time = datetime.datetime.now().strftime('%H:%M')
-        return 
+        return current_time
 
     def get_current_module(self, module_day, module_time):
         bool_series = self.data.loc[module_day].isin([module_time])
@@ -42,8 +42,8 @@ class TimeTable:
         else:
             return None
 
-time_table = TimeTable()
-time_table.get_info()
+# time_table = TimeTable()
+# # time_table.get_info()
 
 # while True:
 #     module_day = input('Enter the day of the week: ')
