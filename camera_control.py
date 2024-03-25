@@ -1,28 +1,26 @@
-import datetime
-import schedule
-# from detector import recognize_faces
+from detector import recognize_faces
 from cv2 import VideoCapture, imshow, imwrite, destroyWindow  
 
-# cam_port = 0
-# cam = VideoCapture(cam_port) 
-# result, image = cam.read() 
+def camera_control():
+    cam_port = 0
+    cam = VideoCapture(cam_port) 
+    result, image = cam.read() 
 
-# if result:
-#     #display the camera image
-#     imshow("Camera", image)
-    
-#     #save the image in local storage
-#     imwrite("data.png", image)
-    
-#     #destroy the camera window after capturing the image
-#     destroyWindow("Camera")
-  
-# else: 
-#     print("No image detected. Please! try again") 
-    
-# while True:
-#     schedule.every().day.at("21:01").do(recognize_faces())
+    if result:
+        #display the camera image
+        # imshow("Camera", image)
 
-current_time = datetime.datetime.now()
-print("Current time:", current_time.strftime("%H:%M"))
-print(len(current_time.strftime("%H:%M")))
+        #save the image in local storage
+        imwrite("data.png", image)
+
+        #destroy the camera window after capturing the image
+        # destroyWindow("Camera")
+
+        recognize_faces('data.png')
+
+    else: 
+        print("No image detected. Please! try again")
+
+# current_time = datetime.datetime.now()
+# print("Current time:", current_time.strftime("%H:%M"))
+# print(len(current_time.strftime("%H:%M")))

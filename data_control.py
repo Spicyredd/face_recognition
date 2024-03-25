@@ -42,18 +42,14 @@ class TimeTable:
         else:
             return None
 
-# time_table = TimeTable()
-# # time_table.get_info()
+time_table = TimeTable()
+time_table.get_info()
 
-# while True:
-#     module_day = input('Enter the day of the week: ')
-#     module_name = input('Enter the name of the module: ')
-#     module_time = input('Enter the time of the module: ')
-#     time_table.add_module_timing(module_day, module_name, module_time)
-#     print("Added sucessfully.")
+# time_table.get_info()
+
+
 # time_table.get_info()
 # while True:
 #     weekday = time_table.get_current_weekday()
 #     current_time = time_table.get_current_time()
 # time_table.get_current_module('Monday', '11:00')+
-

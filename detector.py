@@ -88,9 +88,9 @@ def recognize_faces(
         if not name:
             name = "Unknown"
         # print(name, bounding_box)
-        _display_face(draw, bounding_box, name)
-    del draw
-    pillow_image.show()
+        # _display_face(draw, bounding_box, name)
+    # del draw
+    # pillow_image.show()
     
 from collections import Counter
 
@@ -104,7 +104,5 @@ def _recognize_face(unknown_encoding, loaded_encodings):
         if match
     )
     if votes:
+        print(votes.most_common(1)[0][0])
         return votes.most_common(1)[0][0]
-
-recognize_faces("data.png")
-
