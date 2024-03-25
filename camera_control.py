@@ -20,7 +20,7 @@ def camera_control():
 
     else: 
         print("No image detected. Please! try again")
-
+camera_control()
 # current_time = datetime.datetime.now()
 # print("Current time:", current_time.strftime("%H:%M"))
 # print(len(current_time.strftime("%H:%M")))

@@ -59,7 +59,7 @@ def encode_known_faces(
     with encodings_location.open(mode="wb") as f:
         pickle.dump(name_encodings, f)
 
-# encode_known_faces()
+encode_known_faces()
 
 def recognize_faces(
     image_location: str,
@@ -87,10 +87,10 @@ def recognize_faces(
         name = _recognize_face(unknown_encoding, loaded_encodings)
         if not name:
             name = "Unknown"
-        # print(name, bounding_box)
-        # _display_face(draw, bounding_box, name)
-    # del draw
-    # pillow_image.show()
+        print(name, bounding_box)
+        _display_face(draw, bounding_box, name)
+    del draw
+    pillow_image.show()
     
 from collections import Counter
 
@@ -104,5 +104,5 @@ def _recognize_face(unknown_encoding, loaded_encodings):
         if match
     )
     if votes:
-        print(votes.most_common(1)[0][0])
+        # print(votes.most_common(1)[0][0])
         return votes.most_common(1)[0][0]
