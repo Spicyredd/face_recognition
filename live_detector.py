@@ -27,7 +27,7 @@ def recognize_faces_in_video(encodings_location, model="hog"):
         # Find all face locations and encodings in the current frame
         face_locations = face_recognition.face_locations(rgb_frame, model=model)
         face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
-        
+       
         # Recognize faces in the current frame
         for face_location, unknown_encoding in zip(face_locations, face_encodings):
             name = recognize_face(unknown_encoding, loaded_encodings)
