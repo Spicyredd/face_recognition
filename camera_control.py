@@ -8,7 +8,7 @@ def camera_control():
 
     if result:
         #display the camera image
-        # imshow("Camera", image)
+        imshow("Camera", image)
 
         #save the image in local storage
         imwrite("data.png", image)

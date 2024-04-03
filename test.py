@@ -36,8 +36,8 @@ import datetime
 # done = Done()
 # done.get_val()
 
-from rembg import remove
-from PIL import Image
+# from rembg import remove
+# from PIL import Image
 
 # input_path = 'C:/Users/rbeej/Desktop/face_recognition/training/manjil/manjil0.jpg'
 # output_path = 'C:/Users/rbeej/Desktop/face_recognition/training/manjil/manjil0.png'
@@ -45,13 +45,13 @@ from PIL import Image
 # input = Image.open(input_path)
 # input.save(output_path)
 
-import glob
-import os
-from rembg import remove
-from PIL import Image
-import os
-import sys
-import pyuac
+# import glob
+# import os
+# from rembg import remove
+# from PIL import Image
+# import os
+# import sys
+# import pyuac
 # pyuac.runAsAdmin()
 
 # # Specify the directory path
@@ -79,16 +79,46 @@ c = list(zip(a,b))
 # from collections import Counter
 # print(Counter(a))
 
-import pickle
-import face_recognition
+# import pickle
+# import face_recognition
 
-loaded_encodings = ''
-with open('output/encodings.pkl', 'rb') as f:
-    loaded_encodings = pickle.load(f)
-frame = Image.open('training/birat/birat2.jpg')
-face_location = face_recognition.face_locations(frame, model = "hog")
-face_encoding = face_recognition.face_encodings(frame, face_location)
-for i in face_location:
-    print(i)
-boolean_matches = face_recognition.compare_faces(loaded_encodings["encodings"], face_encoding)
-print(boolean_matches)
+# loaded_encodings = ''
+# with open('output/encodings.pkl', 'rb') as f:
+#     loaded_encodings = pickle.load(f)
+# frame = Image.open('training/birat/birat2.jpg')
+# face_location = face_recognition.face_locations(frame, model = "hog")
+# face_encoding = face_recognition.face_encodings(frame, face_location)
+# for i in face_location:
+#     print(i)
+# boolean_matches = face_recognition.compare_faces(loaded_encodings["encodings"], face_encoding)
+# print(boolean_matches)
+
+# from collections import Counter
+
+# a = ['hello', 'hello', 'bye', 'shere']
+# b = Counter(a)
+# print(b)
+
+import numpy as np
+import argparse
+import time
+import cv2
+
+ap = argparse.ArgumentParser()
+ap.add_argument("-p", "--prototxt", required=True,
+	help="path to Caffe 'deploy' prototxt file")
+ap.add_argument("-m", "--model", required=True,
+	help="path to Caffe pre-trained model")
+ap.add_argument("-c", "--confidence", type=float, default=0.2,
+	help="minimum probability to filter weak detections")
+args = vars(ap.parse_args())
+
+CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
+	"bottle", "bus", "car", "cat", "chair", "cow", "diningtable",
+	"dog", "horse", "motorbike", "person", "pottedplant", "sheep",
+	"sofa", "train", "tvmonitor"]
+COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))
+
+# load our serialized model from disk
+print("[INFO] loading model...")
+net = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])

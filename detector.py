@@ -2,10 +2,11 @@
 
 from pathlib import Path
 from PIL import Image, ImageDraw
+from gradio_client import Client
 
 import pickle
 import face_recognition
-
+import gradio_client
 
 DEFAULT_ENCODINGS_PATH = Path("output/encodings.pkl")
 
@@ -59,7 +60,7 @@ def encode_known_faces(
     with encodings_location.open(mode="wb") as f:
         pickle.dump(name_encodings, f)
 
-encode_known_faces()
+# encode_known_faces()
 
 def recognize_faces(
     image_location: str,
@@ -84,14 +85,21 @@ def recognize_faces(
     for bounding_box, unknown_encoding in zip(
         input_face_locations, input_face_encodings
     ):
-        name = _recognize_face(unknown_encoding, loaded_encodings)
-        if not name:
-            name = "Unknown"
-        print(name, bounding_box)
-        _display_face(draw, bounding_box, name)
+        threshold = fake_detector(image_location)
+        if threshold < 0.7:
+            name = 'Fake: ' + str(_recognize_face(unknown_encoding, loaded_encodings))
+            if name == 'Fake: None':
+                name = "Fake: Unknown"
+            _display_face(draw, bounding_box, name)
+        else:
+            name = _recognize_face(unknown_encoding, loaded_encodings)
+            if not name:
+                name = "Unknown"
+            print(name, bounding_box)
+            _display_face(draw, bounding_box, name)
     del draw
     pillow_image.show()
-    
+
 from collections import Counter
 
 def _recognize_face(unknown_encoding, loaded_encodings):
@@ -106,3 +114,13 @@ def _recognize_face(unknown_encoding, loaded_encodings):
     if votes:
         # print(votes.most_common(1)[0][0])
         return votes.most_common(1)[0][0]
+    
+def fake_detector(image_location):
+    client = Client("https://faceonlive-face-liveness-detection-sdk.hf.space/")
+    result = client.predict(
+            gradio_client.file(image_location),	# filepath  in 'parameter_4' Image component
+            api_name="/face_liveness"
+    )
+    return result['data']['liveness_score']
+
+# recognize_faces('image.jpeg')
