@@ -16,7 +16,7 @@ def load_encodings(encodings_location):
     return loaded_encodings
 
 # Recognize face in video stream
-def recognize_faces_in_video(encodings_location, model="hog"):
+def recognize_faces_in_video(encodings_location = DEFAULT_ENCODINGS_PATH, model="hog"):
     loaded_encodings = load_encodings(encodings_location)
     video_capture = cv2.VideoCapture(0)  # Use 0 for default webcam
     
@@ -34,17 +34,17 @@ def recognize_faces_in_video(encodings_location, model="hog"):
         # Recognize faces in the current frame
         for face_location, unknown_encoding in zip(face_locations, face_encodings):
             top, right, bottom, left = face_location
-            face = Image.fromarray(frame).crop((left, top, right, bottom))
-            face.save('face.png')
-            threshold = fake_detector('face.png')
-            if threshold < 0.7:
-                name = 'Fake: ' + recognize_face(unknown_encoding, loaded_encodings)
-                if name == 'Fake: None':
-                    name = "Fake: Unknown"
-            else:
-                name = recognize_face(unknown_encoding, loaded_encodings)
-                if not name:
-                    name = "Unknown"
+            # face = Image.fromarray(frame).crop((left, top, right, bottom))
+            # face.save('face.png')
+            # threshold = fake_detector('face.png')
+            # if threshold < 0.7:
+            #     name = 'Fake: ' + recognize_face(unknown_encoding, loaded_encodings)
+            #     if name == 'Fake: None':
+            #         name = "Fake: Unknown"
+            # else:
+            name = recognize_face(unknown_encoding, loaded_encodings)
+            if not name:
+                name = "Unknown"
             cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
             cv2.putText(frame, name, (left + 6, bottom - 6), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
         
