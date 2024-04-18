@@ -20,6 +20,12 @@ TEXT_COLOR = "white"
 
 # ...
 
+
+from gradio_client import Client
+import gradio_client
+
+
+
 def _display_face(draw, bounding_box, name):
     top, right, bottom, left = bounding_box
     draw.rectangle(((left, top), (right, bottom)), outline=BOUNDING_BOX_COLOR)
@@ -59,7 +65,7 @@ def encode_known_faces(
     with encodings_location.open(mode="wb") as f:
         pickle.dump(name_encodings, f)
 
-# encode_known_faces()
+encode_known_faces()
 
 def recognize_faces(
     image_location: str,
@@ -107,4 +113,11 @@ def _recognize_face(unknown_encoding, loaded_encodings):
         return votes.most_common(1)[0][0]
 
 recognize_faces("training_image.png")
+from gradio_client import Client
 
+client = Client("https://faceonlive-face-liveness-detection-sdk.hf.space/")
+result = client.predict(
+		"https://raw.githubusercontent.com/gradio-app/gradio/main/test/test_files/training_image.png",	# filepath  in 'parameter_4' Image component
+		api_name="/face_liveness"
+)
+print(result)

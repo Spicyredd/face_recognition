@@ -3,8 +3,14 @@ import face_recognition
 from collections import Counter
 import pickle
 import numpy as np
+from pathlib import Path
+
 
 DEFAULT_ENCODINGS_PATH = "output/encodings.pkl"
+
+
+
+
 
 # Load encodings
 def load_encodings(encodings_location):
@@ -15,11 +21,15 @@ def load_encodings(encodings_location):
 # Recognize face in video stream
 def recognize_faces_in_video(encodings_location, model="hog"):
     loaded_encodings = load_encodings(encodings_location)
-    video_capture = cv2.VideoCapture(0)  # Use 0 for default webcam
+    video_capture = cv2.VideoCapture(0)  # Use 0 for default webcam+
     
     while True:
         # Capture frame-by-frame
         ret, frame = video_capture.read()
+
+        # from liveliness import liveliness_detector
+        # session = liveliness_detector(frame)
+        # session.check_liveliness()
         
         # Convert the image from BGR color to RGB color
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -48,10 +58,11 @@ def recognize_faces_in_video(encodings_location, model="hog"):
     video_capture.release()
     cv2.destroyAllWindows()
 
-# Recognize face using loaded encodings
-def recognize_face(unknown_encoding, loaded_encodings):
+
+    
+def recognize_face(unknown_encoding, loaded_encodings, threshold=0.5):
     boolean_matches = face_recognition.compare_faces(
-        loaded_encodings["encodings"], unknown_encoding
+        loaded_encodings["encodings"], unknown_encoding, tolerance=threshold
     )
     votes = Counter(
         name
@@ -59,8 +70,15 @@ def recognize_face(unknown_encoding, loaded_encodings):
         if match
     )
     if votes:
-        print(votes.most_common(1)[0][0])
-        return votes.most_common(1)[0][0]
+        recognized_face = votes.most_common(1)[0][0]
+        # Check if the highest vote count exceeds the threshold
+        if votes[recognized_face] / sum(votes.values()) >= threshold:
+            print(recognized_face)
+            return recognized_face
+    return None
+
+
+
 
 # Run face recognition on live video
 recognize_faces_in_video(DEFAULT_ENCODINGS_PATH)
