@@ -99,7 +99,6 @@ def recognize_faces(
     pillow_image.show()
     
 from collections import Counter
-
 def _recognize_face(unknown_encoding, loaded_encodings):
     boolean_matches = face_recognition.compare_faces(
         loaded_encodings["encodings"], unknown_encoding
@@ -113,11 +112,11 @@ def _recognize_face(unknown_encoding, loaded_encodings):
         return votes.most_common(1)[0][0]
 
 recognize_faces("training_image.png")
-from gradio_client import Client
+# from gradio_client import Client
 
-client = Client("https://faceonlive-face-liveness-detection-sdk.hf.space/")
-result = client.predict(
-		"https://raw.githubusercontent.com/gradio-app/gradio/main/test/test_files/training_image.png",	# filepath  in 'parameter_4' Image component
-		api_name="/face_liveness"
-)
-print(result)
+# client = Client("https://faceonlive-face-liveness-detection-sdk.hf.space/")
+# result = client.predict(
+# 		"https://raw.githubusercontent.com/gradio-app/gradio/main/test/test_files/training_image.png",	# filepath  in 'parameter_4' Image component
+# 		api_name="/face_liveness"
+# )
+# print(result)
