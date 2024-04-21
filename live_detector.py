@@ -22,7 +22,10 @@ def load_encodings(encodings_location):
 def recognize_faces_in_video(encodings_location, model="hog"):
     loaded_encodings = load_encodings(encodings_location)
     video_capture = cv2.VideoCapture(0)  # Use 0 for default webcam+
-    
+    video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 500)
+    video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 400)
+
+
     while True:
         # Capture frame-by-frame
         ret, frame = video_capture.read()
