@@ -6,11 +6,11 @@ class MainGui:
         self.root = Tk()
         self.root.title(title)
         self.root.geometry(geometry)
-        btn = Button(self.root, text = 'This button ', bd = '5', command = recognize_faces)
+        btn = Button(self.root, text = 'This button ', bd = '5', command = recognize_faces_in_video)
         btn.pack(side = 'top')
         self.root.mainloop()
         
-gui = MainGui('Mygui', '600x600')
+gui = MainGui('Mygui', '100x100')
 
 # master = Tk()
 # w = Canvas(master, width=40, height=40)
