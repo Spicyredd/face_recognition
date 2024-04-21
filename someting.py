@@ -5,7 +5,6 @@ import csv
 from threading import Thread
 
 def exec():
-    display_csv_data()
     video_thread = Thread(target=recognize_faces_in_video)
     video_thread.daemon = True
     video_thread.start()
@@ -47,5 +46,6 @@ tree.pack(padx=20, pady=20, fill="both", expand=True)
 status_label = tk.Label(root, text="", padx=20, pady=10)
 status_label.pack()
 
+display_csv_data()
 
 root.mainloop()
