@@ -74,6 +74,7 @@ def recognize_face(unknown_encoding, loaded_encodings):
             data.loc[data[column_to_check] == specific_value, 'status'] = 'Present'
             data.to_csv('students.csv')
         print(votes.most_common(1)[0][0])
+        print(specific_value)
         return votes.most_common(1)[0][0]
     
 def fake_detector(image_location):
