@@ -13,7 +13,7 @@ def load_images_and_labels(data_folder):
     for label in os.listdir(data_folder):
         if not label.startswith('.'):  # Ignore hidden files or folders
             label_folder = os.path.join(data_folder, label)
-            label_dict[label] = current_id  # Assign a unique ID to the label
+            label_dict[current_id] = label  # Assign a unique ID to the label
             current_id += 1
             for filename in os.listdir(label_folder):
                 img_path = os.path.join(label_folder, filename)
