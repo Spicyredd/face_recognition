@@ -2,15 +2,9 @@ import cv2
 import face_recognition
 from collections import Counter
 import pickle
-import numpy as np
-from pathlib import Path
-
+import time
 
 DEFAULT_ENCODINGS_PATH = "output/encodings.pkl"
-
-
-
-
 
 # Load encodings
 def load_encodings(encodings_location):
@@ -19,47 +13,47 @@ def load_encodings(encodings_location):
     return loaded_encodings
 
 # Recognize face in video stream
-def recognize_faces_in_video(encodings_location, model="hog"):
+def recognize_faces_in_video(encodings_location, model="hog", frame_resize_factor=0.25):
     loaded_encodings = load_encodings(encodings_location)
-    video_capture = cv2.VideoCapture(0)  # Use 0 for default webcam+
+    video_capture = cv2.VideoCapture(0)  # Use 0 for default webcam
     
     while True:
-        # Capture frame-by-frame
+        start_time = time.time()
+
         ret, frame = video_capture.read()
 
-        # from liveliness import liveliness_detector
-        # session = liveliness_detector(frame)
-        # session.check_liveliness()
+        # Resize frame for faster face recognition processing
+        small_frame = cv2.resize(frame, (0, 0), fx=frame_resize_factor, fy=frame_resize_factor)
+        rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
         
-        # Convert the image from BGR color to RGB color
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        face_locations = face_recognition.face_locations(rgb_small_frame, model=model)
+        face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
         
-        # Find all face locations and encodings in the current frame
-        face_locations = face_recognition.face_locations(rgb_frame, model=model)
-        face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
-        
-        # Recognize faces in the current frame
         for face_location, unknown_encoding in zip(face_locations, face_encodings):
             name = recognize_face(unknown_encoding, loaded_encodings)
             if not name:
                 name = "Unknown"
             top, right, bottom, left = face_location
+            # Scale back up face locations since the frame we detected in was scaled to a smaller size
+            top *= int(1/frame_resize_factor)
+            right *= int(1/frame_resize_factor)
+            bottom *= int(1/frame_resize_factor)
+            left *= int(1/frame_resize_factor)
             cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
             cv2.putText(frame, name, (left + 6, bottom - 6), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
         
-        # Display the resulting image
+        end_time = time.time()
+        fps = 1 / (end_time - start_time)
+        cv2.putText(frame, f"FPS: {fps:.2f}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+
         cv2.imshow('Video', frame)
         
-        # Check for 'q' key press to exit
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     
-    # Release the video capture object and close all windows
     video_capture.release()
     cv2.destroyAllWindows()
 
-
-    
 def recognize_face(unknown_encoding, loaded_encodings, threshold=0.5):
     boolean_matches = face_recognition.compare_faces(
         loaded_encodings["encodings"], unknown_encoding, tolerance=threshold
@@ -71,14 +65,9 @@ def recognize_face(unknown_encoding, loaded_encodings, threshold=0.5):
     )
     if votes:
         recognized_face = votes.most_common(1)[0][0]
-        # Check if the highest vote count exceeds the threshold
         if votes[recognized_face] / sum(votes.values()) >= threshold:
             print(recognized_face)
             return recognized_face
     return None
 
-
-
-
-# Run face recognition on live video
 recognize_faces_in_video(DEFAULT_ENCODINGS_PATH)
