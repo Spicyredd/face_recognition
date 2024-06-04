@@ -121,3 +121,4 @@ result = client.predict(
 		api_name="/face_liveness"
 )
 print(result)
+
