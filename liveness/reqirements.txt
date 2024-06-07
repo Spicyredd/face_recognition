@@ -1,4 +1,0 @@
-torch
-scikit-learn
-timm
-ellzaf_ml
