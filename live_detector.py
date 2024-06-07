@@ -5,8 +5,8 @@ import pickle
 import numpy as np
 from pytorch_train import FaceNet, cosine_similarity
 import cv2
-import os
-
+from yolov5facedetector.face_detector import YoloDetector
+import time
 
 # ... (Your other code, including the `FaceNet` class, `cosine_similarity` function, etc.)
 
@@ -51,20 +51,20 @@ known_labels = [label for _, label in known_face_embeddings]
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
-mode = torch.hub.load('ultralytics/yolov5', 'yolov5s')
+mode = YoloDetector()
 video_capture = cv2.VideoCapture(0)
+
+start_time = 0
+fps = 0
 
 while True:
     # Read a frame from the camera
     ret, frame = video_capture.read()
     
-    # results = mode(frame)
-    
-    # faces = results.xyxy[0]
-    
-    # for face in faces:
-    #     x1, y1, x2, y2 = map(int, face)
-    #     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+    faces, confs, points = mode.predict(frame)
+    for count, face in enumerate(faces):
+        x1, y1, x2, y2 = face[0]
+        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
     
     # Flip the frame horizontally
     frame = cv2.flip(frame, 1)
@@ -77,7 +77,11 @@ while True:
         cv2.putText(frame, f'Name: {predicted_label}, Similarity: {max_similarity:.2f}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
     else:
         cv2.putText(frame, "Unknown Face", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-
+    end_time = time.time()
+    fps = 1/ (end_time - start_time)
+    start_time = time.time()
+        
+    cv2.putText(frame, f'FPS: {fps:.2f}', (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
     # Display the resulting frame
     cv2.imshow('Video', frame)
 
