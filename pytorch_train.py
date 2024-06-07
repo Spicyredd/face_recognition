@@ -6,6 +6,7 @@ from torchvision import datasets, transforms
 import torchvision.models as models
 from PIL import Image
 import numpy as np
+import os
 
 # Define the FaceNet model architecture
 class FaceNet(nn.Module):

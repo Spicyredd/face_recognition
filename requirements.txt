@@ -1,4 +1,4 @@
 torch
 pillow
-pickle
 numpy
+open-cv

@@ -1,8 +1,6 @@
 import torchvision.transforms as transforms
 from PIL import Image
 import torch
-import torch.nn as nn
-import torchvision.models as models
 import pickle
 import numpy as np
 from pytorch_train import FaceNet, cosine_similarity
@@ -36,11 +34,11 @@ def recognize_face(model, image_path, known_embeddings, known_labels):
 
 # Load the model
 model = FaceNet(embedding_size=128)  # Use the same embedding size as during training
-model.load_state_dict(torch.load('/content/facenet_model.pth'))
+model.load_state_dict(torch.load('facenet_model.pth'))
 model.eval()  # Set to evaluation mode
 
 # Load the known embeddings
-with open('/content/known_face_embeddings.pkl', 'rb') as f:
+with open('known_face_embeddings.pkl', 'rb') as f:
     known_face_embeddings = pickle.load(f)
 
 # Extract known embeddings and labels
@@ -52,7 +50,7 @@ model.to(device)
 
 # ... (Load the model and embeddings as shown above)
 
-image_path = '/content/training/shankar/shankar0.jpeg'
+image_path = 'rishav7.jpg'
 predicted_label, max_similarity = recognize_face(model, image_path, known_embeddings, known_labels)
 
 if predicted_label is not None:
