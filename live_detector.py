@@ -6,7 +6,9 @@ import numpy as np
 from pytorch_train import FaceNet, cosine_similarity
 import cv2
 from yolov5facedetector.face_detector import YoloDetector
+from facenet_pytorch import MTCNN
 import time
+
 
 # ... (Your other code, including the `FaceNet` class, `cosine_similarity` function, etc.)
 
@@ -51,20 +53,25 @@ known_labels = [label for _, label in known_face_embeddings]
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
-mode = YoloDetector()
 video_capture = cv2.VideoCapture(0)
+
 
 start_time = 0
 fps = 0
 
+
+
+mtcnn = MTCNN(
+    image_size=224,
+    margin = 20,
+    min_face_size = 20,
+    keep_all=True,
+    select_largest=True
+)
+
 while True:
     # Read a frame from the camera
     ret, frame = video_capture.read()
-    
-    faces, confs, points = mode.predict(frame)
-    for count, face in enumerate(faces):
-        x1, y1, x2, y2 = face[0]
-        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
     
     # Flip the frame horizontally
     frame = cv2.flip(frame, 1)
@@ -81,6 +88,21 @@ while True:
     fps = 1/ (end_time - start_time)
     start_time = time.time()
         
+     # Perform face detection using MTCNN
+    boxes, probs, points = mtcnn.detect(frame, landmarks=True)
+
+    # Draw bounding boxes and landmarks (if available)
+    if boxes is not None:
+        for i, box in enumerate(boxes):
+            x1, y1, x2, y2 = map(int, box)
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            
+            # Draw landmarks (if available)
+            if points is not None:
+                for point in points[i]:
+                    x, y = map(int, point)
+                    cv2.circle(frame, (x, y), 2, (0, 255, 0), -1)
+                    
     cv2.putText(frame, f'FPS: {fps:.2f}', (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
     # Display the resulting frame
     cv2.imshow('Video', frame)
