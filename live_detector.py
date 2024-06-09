@@ -19,6 +19,8 @@ def recognize_face(model, frame, known_embeddings, known_labels):
         transforms.ToTensor(),
     ])
     
+    THRESHOLD = 0.6
+    
     input_tensor = preprocess(frame).unsqueeze(0).to(device)  # Add batch dimension
 
     with torch.no_grad():
@@ -27,7 +29,9 @@ def recognize_face(model, frame, known_embeddings, known_labels):
     # Calculate cosine similarity with each known embedding
     similarities = []
     for known_embedding in known_embeddings:
+        
         similarity = cosine_similarity(embedding, known_embedding.T)
+        
         similarities.append(similarity)
 
     if similarities:
