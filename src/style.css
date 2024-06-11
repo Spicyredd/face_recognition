@@ -1,0 +1,193 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(43, 96, 236, 0.90);
+}
+.Header{
+  width: 421.29px;
+  height: 100.064px;
+  padding-top: 49.08px;
+}
+
+.Header h6{
+  color: #000;
+  text-align: center;
+  font-family: Poppins;
+  font-size: 19.758px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 135.5%; /* 26.772px */
+  text-align: center;
+
+}
+
+.Header h2{
+  color: rgba(43, 96, 236, 0.75);
+  font-family: Poppins;
+  font-size: 25.494px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 135.5%;
+  text-align: center;
+  padding-bottom: 15.92px;
+}
+
+.Header p{
+  color: #000;
+  text-align: center;
+  font-family: Poppins;
+  font-size: 11.472px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 135.5%; /* 15.545px */
+  text-align: center;
+}
+
+.form-container{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 65px;
+}
+
+form .id{
+  display: flex;
+  width: 277.886px;
+  padding: 12.747px 20.395px;
+  align-items: flex-start;
+  border-radius: 25.494px;
+  background: #FFF;
+  box-shadow: 0px 2.549px 19.121px 0px rgba(0, 0, 0, 0.25);
+  color: rgba(0, 0, 0, 0.43);
+  text-align: center;
+  font-family: Poppins;
+  font-size: 11.472px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 135.5%; /* 15.545px */
+  margin-top: 24px;
+  margin-bottom: 30px;
+  border: none;
+}
+
+.btn-1{
+  color: #FFF;
+  text-align: center;
+  font-family: Poppins;
+  font-size: 16.571px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 135.5%; /* 22.454px */
+  display: inline-flex;
+  padding: 8.923px 33.142px;
+  justify-content: center;
+  align-items: center;
+  gap: 6.374px;
+  border-radius: 21.67px;
+  background: rgba(43, 96, 236, 0.73);
+  box-shadow: 0px 2.549px 19.121px 0px rgba(0, 0, 0, 0.25);
+  border: none;
+}
+.btn-1:active {
+  transform: scale(0.95); /* Scale down the button */
+  
+  background: #E4E6EB;
+  color:#BCC0C4;
+}
+.button-1{
+  width: 421.29px;
+  height: 63px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pannel{
+
+  width: 421.29px;
+  height: 455.07px;
+  margin-top: 35%;
+  border-radius: 45.252px;
+  background: rgba(255, 255, 255, 0.69);
+  box-shadow: 0px 2.549px 82.219px 0px rgba(0, 0, 0, 0.25);
+}
+
+.hints{
+  width: 421.29px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hints p{
+  color: #000;
+  text-align: center;
+  font-family: Poppins;
+  font-size: 11.162px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 135.5%; /* 15.125px */
+}
+
+.hints p span{
+  padding-left: 33px;
+  color: rgba(43, 96, 236, 0.73);
+}
+
+.hints input{
+  width: 15.296px;
+  height: 13.384px;
+  margin-bottom: 4px;
+  margin-right: 2.55px;
+}
+
+.back-send{
+  width: 421.29px;
+  height: 467px;
+  position: absolute;
+  top: 36%;
+  z-index: -1;
+}
+
+.layer1{
+  width: 383.71px;
+  height: 373px;
+  position: absolute;
+  left: 75%;
+  top: 48.5%;
+  overflow: hidden;
+
+}
+
+.logo-img{
+  position: absolute;
+  scale: 0.8;
+  left: 0%;
+  top: 0%;
+}
+
+.shadow-img{
+
+  width: 614px;
+  position: absolute;
+  left: 50%;
+  top: 10%;
+  z-index: -1;
+  display: none;
+}
+
+
+.students-img{
+  position: absolute;
+  width: 350px;
+  height: 400px;
+  left: 72%;
+  top: 38%;
+}

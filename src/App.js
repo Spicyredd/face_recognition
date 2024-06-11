@@ -1,25 +1,33 @@
-import logo from './logo.svg';
-import './App.css';
-
-function App() {
+import React from 'react'
+import Header from './Components/Header';
+import Form from './Components/Form';
+import './style.css';
+import Button from './Components/Button';
+import Hints from './Components/Hints';
+import Imagesite from './Components/Imagesite';
+import Layer1 from './Components/Layer1';
+import Shadowimg from './Components/Shadowimg';
+import Studentimg from './Components/Studentimg';
+import Logoimg from './Components/Logoimg';
+const App = () => {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div className='image-selector'>
+          <Logoimg  />
+          <Imagesite  />
+          <Layer1 />
+          <Shadowimg  />
+          <Studentimg />
+      </div>
+
+      <div className='pannel'>
+        <Header />
+        <Form />
+        <Hints />
+        <Button />
+      </div>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
