@@ -1,4 +1,0 @@
-torch
-pillow
-numpy
-open-cv
