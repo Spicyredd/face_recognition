@@ -92,21 +92,14 @@ while True:
         
 
             if predicted_label is not None:
-                if max_similarity:
+                if max_similarity > 0.5:
                     # Display the predicted label and similarity on the frame
                     cv2.putText(frame, f'Name: {predicted_label}, Similarity: {max_similarity:.2f}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
                 else:
                     cv2.putText(frame, "Unknown Face", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
                 
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            
-            # Draw landmarks (if available)
-            # if points is not None:
-            #     for point in points[i]:
-            #         x, y = map(int, point)
-            #         cv2.circle(frame, (x, y), 2, (0, 255, 0), -1)
-                    
-                    
+                              
     cv2.putText(frame, f'FPS: {fps:.2f}', (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
     # Display the resulting frame
     cv2.imshow('Video',frame)
