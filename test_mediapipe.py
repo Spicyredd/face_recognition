@@ -1,36 +1,22 @@
+# STEP 1: Import the necessary modules.
+import numpy as np
+import mediapipe as mp
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
+import cv2
+import numpy as np
+import time
+import warnings
 import torch
 import torchvision.transforms as transforms
 import pickle
 import numpy as np
 from model_train import cosine_similarity  # Assuming 'pytorch_train.py' contains your FaceNet class
 import cv2
-from facenet_pytorch import MTCNN, InceptionResnetV1
+from facenet_pytorch import InceptionResnetV1
 import time
 import warnings
 warnings.simplefilter('ignore')
-from queue import Queue, Empty
-import threading
-
-class FPSThread(threading.Thread):
-    def __init__(self):
-        super().__init__()
-        self.frame_times = []
-        self.fps_queue = Queue(maxsize=10)  # limit the queue size
-        self.running = True
-
-    def run(self):
-        while self.running:
-            # Sleep briefly to allow frame processing
-            time.sleep(0.1)
-            if len(self.frame_times) > 1:
-                avg_frame_time = sum(self.frame_times) / len(self.frame_times)
-                fps = 1 / avg_frame_time if avg_frame_time > 0 else 0
-                if not self.fps_queue.full():
-                    self.fps_queue.put(fps)
-
-    def stop(self):
-        self.running = False
-
 
 # ... (Your other code, including the `cosine_similarity` function, etc.
 def recognize_face(model, frame, known_embeddings, known_labels):
@@ -39,9 +25,6 @@ def recognize_face(model, frame, known_embeddings, known_labels):
         transforms.Resize((160, 160)),  # Use the same size as during training
         transforms.ToTensor(),
     ])
-    
-    
-    THRESHOLD = 0.6
     
     input_tensor = preprocess(frame).unsqueeze(0).to(device)  # Add batch dimension
 
@@ -73,48 +56,54 @@ resnet = InceptionResnetV1(pretrained='vggface2').eval()
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 resnet = resnet.to(device)  # Move the model to the device
 
-video_capture = cv2.VideoCapture(1)
+def get_face(
+    detection_result
+) -> np.ndarray:
+  """Draws bounding boxes and keypoints on the input image and return it.
+  Args:
+    image: The input RGB image.
+    detection_result: The list of all "Detection" entities to be visualize.
+  Returns:
+    Image with bounding boxes.
+  """
+  boxes = []
+  for detection in detection_result.detections:    
+    bbox = detection.bounding_box
+    start_point = bbox.origin_x - int((bbox.origin_x + bbox.width)*0.01), bbox.origin_y - int(bbox.origin_y*0.2) #left,top
+    end_point = bbox.origin_x + bbox.width + int((bbox.origin_x + bbox.width)*0.01), bbox.origin_y + bbox.height #right, bottom
+    x1, y1 = start_point
+    x2, y2 = end_point
+    boxes.append((x1, y1, x2, y2))
+  return boxes
+# STEP 2: Create an FaceDetector object.
+base_options = python.BaseOptions(model_asset_path='detector.tflite')
+options = vision.FaceDetectorOptions(base_options=base_options)
+detector = vision.FaceDetector.create_from_options(options)
+
+# STEP 3: Load the input image.
+vid = cv2.VideoCapture(1)
 start_time = 0
 fps = 0
+_, frame = vid.read()
 
-mtcnn = MTCNN(
-    image_size=160,
-    margin=20,
-    min_face_size=20,
-    keep_all=True,
-    select_largest=True
-)
-ret, frame = video_capture.read()
-width,height = frame.shape[:2]
-print(f'Width:{width}, Height:{height}')
-
-
-print('Video capture start.....')
+width, height = frame.shape[:2]
 while True:
-    # Read a frame from the camera
-    ret, frame = video_capture.read()
-    
-
-    # Flip the frame horizontally
-    frame = cv2.flip(frame, 1)
-    width, height = frame.shape[:2]
-    scale = 4
+    ret, frame = vid.read()
+    scale = 1
     mini_frame = cv2.resize(frame, (height//scale, width//scale))
+    mini_frame_copy = mp.Image(image_format = mp.ImageFormat.SRGB, data = mini_frame)
     end_time = time.time()
     fps = 1/ (end_time - start_time)
     start_time = time.time()
         
-    # Perform face detection using MTCNN
-    boxes, probs = mtcnn.detect(mini_frame)
-    face_frame = ''
-    # Draw bounding boxes and landmarks (if available)
+    
+    boxes = get_face(detector.detect(mini_frame_copy))
     if boxes is not None:
-        for i, box in enumerate(boxes):
-            x1, y1, x2, y2 = map(int, box)
+        for box in boxes:
+            x1, y1, x2, y2 = box
             # left, top, right, bottom
             face_frame = mini_frame[y1:y2, x1:x2]
-            x1, y1, x2, y2 = x1*scale , y1*scale , x2 *scale , y2 *scale
-            
+            x1, y1, x2, y2 = [x*scale for x in box]
             # Recognize faces in the frame
             predicted_label, max_similarity = recognize_face(resnet, face_frame, known_embeddings, known_labels)
 
@@ -130,15 +119,9 @@ while True:
     cv2.putText(frame, f'FPS: {fps:.2f}', (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
     # Display the resulting frame
     cv2.imshow('Video',frame)
-    cv2.imshow('Video_mini', mini_frame)
 
-    # Exit if the 'q' key is pressed
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
-
-# Release resources
-video_capture.release()
+    
+cv2.waitKey(0)
 cv2.destroyAllWindows()
-
-
-

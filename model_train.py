@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
     # Set up the model, optimizer, and loss function
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    resnet = InceptionResnetV1(pretrained='vggface2').eval()
+    resnet = InceptionResnetV1(pretrained='casia-webface').eval()
     resnet = resnet.to(device)  # Move the model to the device
     
     known_face_embeddings = []

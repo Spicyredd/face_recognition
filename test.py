@@ -1,193 +1,66 @@
-import torch
-from torchvision import datasets, transforms
-import numpy as np
-from facenet_pytorch import InceptionResnetV1
-import pickle
-from torch.utils.data import DataLoader
-from torch.optim.lr_scheduler import ReduceLROnPlateau
+import cv2
+import time
+import threading
+from queue import Queue, Empty
 
-def calculate_accuracy(predictions, labels, class_names, threshold=0.8):
-    """Calculates accuracy using cosine similarity and a threshold.
+class FPSThread(threading.Thread):
+    def __init__(self):
+        super().__init__()
+        self.frame_times = []
+        self.fps_queue = Queue(maxsize=10)  # limit the queue size
+        self.running = True
 
-    Args:
-        predictions: A list of face embeddings.
-        labels: A list of corresponding labels.
-        class_names: A list of class names for the dataset.
-        threshold: The similarity threshold for a match.
+    def run(self):
+        while self.running:
+            # Sleep briefly to allow frame processing
+            time.sleep(0.1)
+            if len(self.frame_times) > 1:
+                avg_frame_time = sum(self.frame_times) / len(self.frame_times)
+                fps = 1 / avg_frame_time if avg_frame_time > 0 else 0
+                if not self.fps_queue.full():
+                    self.fps_queue.put(fps)
 
-    Returns:
-        Accuracy as a float.
-    """
-    correct_predictions = 0
-    total_predictions = 0
+    def stop(self):
+        self.running = False
 
-    for i in range(len(predictions)):
-        max_similarity = 0.0
-        predicted_label = "Unknown"
-        for j in range(len(predictions)):
-            if i != j:  # Compare different embeddings
-                similarity = cosine_similarity(predictions[i], predictions[j])
-                if similarity > max_similarity:
-                    max_similarity = similarity
-                    predicted_label = class_names[labels[j]]
+# Initialize video capture
+vid = cv2.VideoCapture(1)
 
-        if predicted_label == class_names[labels[i]]:
-            correct_predictions += 1
-        total_predictions += 1
+# Initialize FPS thread
+fps_thread = FPSThread()
+fps_thread.start()
 
-    return correct_predictions / total_predictions if total_predictions else 0.0
+prev_time = time.time()
 
-# Define the function for calculating the cosine similarity between two face embeddings
-def cosine_similarity(embedding1, embedding2):
-    return np.dot(embedding1, embedding2) / (np.linalg.norm(embedding1) * np.linalg.norm(embedding2))
+while True:
+    ret, frame = vid.read()
+    if not ret:
+        break
 
-# Define the face recognition function
-def recognize_face(model, image, known_embeddings, known_labels, threshold=0.6):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = model.to(device)
-    preprocess = transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-    ])
+    # Calculate time difference between frames
+    curr_time = time.time()
+    time_diff = curr_time - prev_time
+    prev_time = curr_time
 
-    input_tensor = preprocess(image).unsqueeze(0).to(device)
+    # Update frame times for FPS calculation
+    fps_thread.frame_times.append(time_diff)
+    if len(fps_thread.frame_times) > 10:  # Limit to the last 10 frame times
+        fps_thread.frame_times.pop(0)
 
-    with torch.no_grad():
-        embedding = model(input_tensor).cpu().numpy()
-        embedding = embedding.flatten()
+    # Get FPS from the queue with a timeout
+    try:
+        fps = fps_thread.fps_queue.get(timeout=0.1)
+    except Empty:
+        fps = 0
 
-    similarities = [cosine_similarity(embedding, known_embedding) for known_embedding, _ in known_embeddings]
+    cv2.putText(frame, f'FPS: {fps:.2f}', (10, 60), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 2)
+    cv2.imshow('video', frame)
 
-    if similarities:
-        max_similarity = np.max(similarities)
-        if max_similarity >= threshold:  
-            predicted_label = known_labels[np.argmax(similarities)]
-        else:
-            predicted_label = "Unknown"
-    else:
-        print("No matching embeddings found")
-        max_similarity = 0.0
-        predicted_label = "Unknown"
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
 
-    return predicted_label, max_similarity
-
-if __name__ == "__main__":
-    # Set up the training data and dataloaders
-    train_data = datasets.ImageFolder(root='faces_training', transform=transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.RandomHorizontalFlip(),
-        transforms.RandomRotation(15),  
-        transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.3, hue=0.2),  
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]) 
-    ]))
-
-    val_data = datasets.ImageFolder(root='faces_validation', transform=transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
-    ]))
-
-    # Set up the model, optimizer, and loss function
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    resnet = InceptionResnetV1(pretrained='vggface2').eval()
-    resnet = resnet.to(device)  
-
-    known_face_embeddings = []
-
-    name_mapping = {}
-
-    # Train the model (or load embeddings if already trained)
-    epochs = 15
-    if not known_face_embeddings:
-        train_loader = DataLoader(train_data, batch_size=64, shuffle=True)
-        val_loader = DataLoader(val_data, batch_size=64, shuffle=False)
-        optimizer = torch.optim.Adam(resnet.parameters(), lr=1e-5)
-        criterion = torch.nn.CosineSimilarity(dim=1)
-        scheduler = ReduceLROnPlateau(optimizer, 'min', patience=3, factor=0.5)
-
-        train_losses = []
-        train_accuracies = []
-        val_losses = []
-        val_accuracies = []
-
-        for epoch in range(epochs):
-            print(f'Epoch {epoch+1}')
-            resnet.train()
-            running_loss = 0.0
-            correct_predictions = 0
-            total_predictions = 0
-
-            for i, (images, labels) in enumerate(train_loader):
-                images = images.to(device)
-                labels = labels.to(device)
-
-                optimizer.zero_grad()
-                embeddings = resnet(images)
-
-                # Calculate loss for each pair of embeddings
-                loss_values = []
-                for j in range(embeddings.shape[0]):
-                    for k in range(j + 1, embeddings.shape[0]):
-                        if labels[j] == labels[k]:
-                            loss = 1 - criterion(embeddings[j].unsqueeze(0), embeddings[k].unsqueeze(0))
-                            loss_values.append(loss)
-
-                # Calculate the average loss over all pairs 
-                if loss_values:
-                    loss = torch.mean(torch.stack(loss_values)) 
-                    loss.backward()
-                    optimizer.step()
-
-                    running_loss += loss.item()
-
-            # Calculate training accuracy (for the entire epoch)
-            train_predictions = []
-            train_labels = []
-            resnet.eval()
-            with torch.no_grad():
-                for images, labels in train_loader:
-                    images = images.to(device)
-                    embeddings = resnet(images).cpu().numpy()
-                    for j, embedding in enumerate(embeddings):
-                        train_predictions.append(embedding.flatten())
-                        train_labels.append(labels[j].item())
-
-            train_accuracy = calculate_accuracy(train_predictions, train_labels, train_data.classes, threshold=0.8)
-            train_losses.append(running_loss / len(train_loader))
-            train_accuracies.append(train_accuracy)
-            print(f'Train Loss: {train_losses[-1]:.4f}, Train Accuracy: {train_accuracies[-1]:.4f}')
-
-            # Calculate validation accuracy (for the entire epoch)
-            val_predictions = []
-            val_labels = []
-            resnet.eval()
-            with torch.no_grad():
-                for images, labels in val_loader:
-                    images = images.to(device)
-                    embeddings = resnet(images).cpu().numpy()
-                    for j, embedding in enumerate(embeddings):
-                        val_predictions.append(embedding.flatten())
-                        val_labels.append(labels[j].item())
-
-            val_accuracy = calculate_accuracy(val_predictions, val_labels, val_data.classes, threshold=0.8)
-            val_losses.append(running_loss / len(val_loader))
-            val_accuracies.append(val_accuracy)
-            print(f'Val Loss: {val_losses[-1]:.4f}, Val Accuracy: {val_accuracies[-1]:.4f}')
-
-            scheduler.step(val_losses[-1])
-
-        # Calculate and save known embeddings after training
-        resnet.eval()
-        with torch.no_grad():
-            known_face_embeddings = []
-            for i, (images, labels) in enumerate(train_loader):
-                images = images.to(device)
-                embeddings = resnet(images).cpu().numpy()
-                for j, embedding in enumerate(embeddings):
-                    name = train_data.classes[labels[j].item()]
-                    known_face_embeddings.append((embedding.flatten(), name))
-
-            # Save trained embeddings
-            with open('known_face_embeddings.pkl', 'wb') as f:
-                pickle.dump(known_face_embeddings, f)
+# Clean up
+fps_thread.stop()
+fps_thread.join()
+vid.release()
+cv2.destroyAllWindows()
