@@ -4,6 +4,8 @@ import numpy as np
 from facenet_pytorch import InceptionResnetV1
 import pickle
 from torch.utils.data import DataLoader
+from torch.optim.lr_scheduler import ReduceLROnPlateau
+
 def calculate_accuracy(predictions, labels, class_names, threshold=0.8):
     """Calculates accuracy using cosine similarity and a threshold.
 
@@ -20,17 +22,18 @@ def calculate_accuracy(predictions, labels, class_names, threshold=0.8):
     total_predictions = 0
 
     for i in range(len(predictions)):
+        max_similarity = 0.0
+        predicted_label = "Unknown"
         for j in range(len(predictions)):
             if i != j:  # Compare different embeddings
                 similarity = cosine_similarity(predictions[i], predictions[j])
-                if similarity >= threshold:
+                if similarity > max_similarity:
+                    max_similarity = similarity
                     predicted_label = class_names[labels[j]]
-                else:
-                    predicted_label = "Unknown"
 
-                if predicted_label == class_names[labels[i]]:
-                    correct_predictions += 1
-                total_predictions += 1
+        if predicted_label == class_names[labels[i]]:
+            correct_predictions += 1
+        total_predictions += 1
 
     return correct_predictions / total_predictions if total_predictions else 0.0
 
@@ -95,12 +98,13 @@ if __name__ == "__main__":
     name_mapping = {}
 
     # Train the model (or load embeddings if already trained)
-    epochs = 15 
+    epochs = 15
     if not known_face_embeddings:
-        train_loader = DataLoader(train_data, batch_size=32, shuffle=True)
-        val_loader = DataLoader(val_data, batch_size=32, shuffle=False)  # Use the validation set
+        train_loader = DataLoader(train_data, batch_size=64, shuffle=True)
+        val_loader = DataLoader(val_data, batch_size=64, shuffle=False)
         optimizer = torch.optim.Adam(resnet.parameters(), lr=1e-5)
         criterion = torch.nn.CosineSimilarity(dim=1)
+        scheduler = ReduceLROnPlateau(optimizer, 'min', patience=3, factor=0.5)
 
         train_losses = []
         train_accuracies = []
@@ -171,6 +175,8 @@ if __name__ == "__main__":
             val_accuracies.append(val_accuracy)
             print(f'Val Loss: {val_losses[-1]:.4f}, Val Accuracy: {val_accuracies[-1]:.4f}')
 
+            scheduler.step(val_losses[-1])
+
         # Calculate and save known embeddings after training
         resnet.eval()
         with torch.no_grad():
@@ -185,8 +191,3 @@ if __name__ == "__main__":
             # Save trained embeddings
             with open('known_face_embeddings.pkl', 'wb') as f:
                 pickle.dump(known_face_embeddings, f)
-
-    known_labels = [name for _, name in known_face_embeddings]
-
-    # ... (Your existing code for video processing using MTCNN and recognize_face)
-

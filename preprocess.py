@@ -41,15 +41,10 @@ def crop_faces(folder_path, output_folder):
                     boxes, probs = mtcnn.detect(image)
                     try:
                       boxes = [[int(box[-1])]+[int(x) for x in box[:-1]] for box in boxes]
-                      # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-                      # # Detect faces
-                      # faces = face_cascade.detectMultiScale(gray, 1.1, 4)
-
+                      
                       for (top, right, bottom, left) in boxes:
                           # Crop the face
                           cropped_face = image[bottom:top, right:left]
-
                           # Save the cropped face
                           output_path = os.path.join(output_folder, person_folder, image_file)
                           cv2.imwrite(output_path, cropped_face)

@@ -41,7 +41,7 @@ def recognize_face(model, frame, known_embeddings, known_labels):
 
 
 
-with open('known_face_embeddings.pkl', 'rb') as f:
+with open('known_face_embeddings (3).pkl', 'rb') as f:
     known_face_embeddings = pickle.load(f)
 
 # Extract known embeddings and labels
@@ -92,7 +92,7 @@ while True:
         
 
             if predicted_label is not None:
-                if max_similarity > 0.5:
+                if max_similarity > 0.2:
                     # Display the predicted label and similarity on the frame
                     cv2.putText(frame, f'Name: {predicted_label}, Similarity: {max_similarity:.2f}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
                 else:
