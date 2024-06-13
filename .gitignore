@@ -1,1 +1,6 @@
 /__pycache__/
+/faces_validation
+/faces_training
+/training
+/validation
+*.mp4

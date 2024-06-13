@@ -2,7 +2,7 @@ import torch
 import torchvision.transforms as transforms
 import pickle
 import numpy as np
-from pytorch_train import cosine_similarity  # Assuming 'pytorch_train.py' contains your FaceNet class
+from model_train import cosine_similarity  # Assuming 'pytorch_train.py' contains your FaceNet class
 import cv2
 from facenet_pytorch import MTCNN, InceptionResnetV1
 import time
@@ -14,9 +14,10 @@ warnings.simplefilter('ignore')
 def recognize_face(model, frame, known_embeddings, known_labels):
     preprocess = transforms.Compose([
         transforms.ToPILImage(),
-        transforms.Resize((224, 224)),  # Use the same size as during training
+        transforms.Resize((160, 160)),  # Use the same size as during training
         transforms.ToTensor(),
     ])
+    
     
     THRESHOLD = 0.6
     
@@ -39,9 +40,7 @@ def recognize_face(model, frame, known_embeddings, known_labels):
     else:
         return None, 0.0
 
-
-
-with open('known_face_embeddings (3).pkl', 'rb') as f:
+with open('known_face_embeddings.pkl', 'rb') as f:
     known_face_embeddings = pickle.load(f)
 
 # Extract known embeddings and labels
@@ -64,6 +63,8 @@ mtcnn = MTCNN(
     keep_all=True,
     select_largest=True
 )
+
+
 
 while True:
     # Read a frame from the camera
@@ -92,7 +93,7 @@ while True:
         
 
             if predicted_label is not None:
-                if max_similarity > 0.2:
+                if max_similarity > 0.65:
                     # Display the predicted label and similarity on the frame
                     cv2.putText(frame, f'Name: {predicted_label}, Similarity: {max_similarity:.2f}', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
                 else:
@@ -111,3 +112,6 @@ while True:
 # Release resources
 video_capture.release()
 cv2.destroyAllWindows()
+
+
+

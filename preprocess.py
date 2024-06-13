@@ -5,7 +5,7 @@ from facenet_pytorch import MTCNN
 mtcnn = MTCNN(
     image_size=224,
     margin=20,
-    min_face_size=20,
+    min_face_size=150,
     keep_all=True,
     select_largest=True,
 )
@@ -23,9 +23,6 @@ cropped_validation_path = "faces_validation"
 os.makedirs(cropped_training_path, exist_ok=True)
 os.makedirs(cropped_validation_path, exist_ok=True)
 
-# Face detection model
-face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-
 def crop_faces(folder_path, output_folder):
     """Crops faces from images in a given folder."""
     for person_folder in os.listdir(folder_path):
@@ -41,13 +38,14 @@ def crop_faces(folder_path, output_folder):
                     boxes, probs = mtcnn.detect(image)
                     try:
                       boxes = [[int(box[-1])]+[int(x) for x in box[:-1]] for box in boxes]
-                      
-                      for (top, right, bottom, left) in boxes:
-                          # Crop the face
-                          cropped_face = image[bottom:top, right:left]
-                          # Save the cropped face
-                          output_path = os.path.join(output_folder, person_folder, image_file)
-                          cv2.imwrite(output_path, cropped_face)
+                      print(boxes)
+                      top, right, bottom, left = boxes[0]
+                      # Crop the face
+                      cropped_face = image[bottom:top, right:left]
+                      cropped_face = cv2.resize(cropped_face, (160, 160))
+                      # Save the cropped face
+                      output_path = os.path.join(output_folder, person_folder, image_file)
+                      cv2.imwrite(output_path, cropped_face)
                     except:
                       pass
 
