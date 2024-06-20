@@ -64,3 +64,5 @@ fps_thread.stop()
 fps_thread.join()
 vid.release()
 cv2.destroyAllWindows()
+
+

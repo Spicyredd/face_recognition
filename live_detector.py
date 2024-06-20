@@ -98,7 +98,7 @@ while True:
     # Flip the frame horizontally
     frame = cv2.flip(frame, 1)
     width, height = frame.shape[:2]
-    scale = 4
+    scale = 1
     mini_frame = cv2.resize(frame, (height//scale, width//scale))
     end_time = time.time()
     fps = 1/ (end_time - start_time)
@@ -126,6 +126,7 @@ while True:
                     cv2.putText(frame, "Unknown Face", (x1 + 10, y2 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
                 
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            print(y2,x2,x1,y2)
                               
     cv2.putText(frame, f'FPS: {fps:.2f}', (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
     # Display the resulting frame
