@@ -1,0 +1,141 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
+
+body{
+  overflow-x: hidden;
+}
+.dashboard_body {
+  background: white;
+  height: 100vh;
+  width: 100vw;
+
+}
+
+.dashboard-logo {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dashboard-logo img {
+  scale: 0.8;
+  cursor: pointer;
+}
+
+.dashboard-layout {
+  width: 1200px;
+  position: relative;
+  top: 142px;
+  left: 194px;
+}
+
+.dashboard-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.date-day {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.date-day h3{
+  color: #000;
+  font-family: Poppins;
+  font-size: 25.866px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 135.5%; /* 35.049px */
+}
+
+.dashboard-data-table {
+  margin-top: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th{
+  color: rgba(43, 96, 236, 0.97);
+  font-family: Roboto;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 300;
+  line-height: normal;
+}
+td{
+  color: #000;
+  font-family: Roboto;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 300;
+  line-height: normal;
+}
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+.student-img-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+.status-absent {
+  color: red;
+}
+
+.pagination {
+  /* margin: 20px 0; */
+  display: flex;
+  justify-content: space-around;
+  width: 100vw;
+  height: 200px;
+  background: white;
+  margin-left: -190px;
+
+}
+
+.export-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  float: right;
+  position: relative;
+  bottom: 90px;
+  right: 50%;
+}
+
+.export-btn:hover {
+  background-color: #0056b3;
+}
+
+.prev, .next {
+  background-color: #f2f2f2;
+  color: black;
+  border: none;
+  padding: 10px 20px;
+  width: 140px;
+  height: 41px;
+  cursor: pointer;
+  margin-top: 30px;
+}
+
+.prev:hover, .next:hover {
+  background-color: #ddd;
+}
