@@ -13,15 +13,15 @@ mtcnn = MTCNN(
 
 # Replace these with your actual paths
 training_path = "training"
-validation_path = "validation"
+# validation_path = "validation"
 
 # Define the output folders
-cropped_training_path = "faces_training"
-cropped_validation_path = "faces_validation"
+cropped_training_path = "faces_cropped_training"
+# cropped_validation_path = "faces_validation"
 
 # Create output folders if they don't exist
 os.makedirs(cropped_training_path, exist_ok=True)
-os.makedirs(cropped_validation_path, exist_ok=True)
+# os.makedirs(cropped_validation_path, exist_ok=True)
 
 def crop_faces(folder_path, output_folder):
     """Crops faces from images in a given folder."""
@@ -53,6 +53,6 @@ def crop_faces(folder_path, output_folder):
 crop_faces(training_path, cropped_training_path)
 
 # Process the validation data
-crop_faces(validation_path, cropped_validation_path)
+# crop_faces(validation_path, cropped_validation_path)
 
 print("Cropping completed!")

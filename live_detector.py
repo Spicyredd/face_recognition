@@ -41,7 +41,7 @@ def recognize_face(model, frame, known_embeddings, known_labels):
     ])
     
     
-    THRESHOLD = 0.6
+    THRESHOLD = 0.75
     
     input_tensor = preprocess(frame).unsqueeze(0).to(device)  # Add batch dimension
 
@@ -62,7 +62,7 @@ def recognize_face(model, frame, known_embeddings, known_labels):
     else:
         return None, 0.0
 
-with open('vggface2.pkl', 'rb') as f:
+with open('known_face_embeddings_big.pkl', 'rb') as f:
     known_face_embeddings = pickle.load(f)
 
 # Extract known embeddings and labels
@@ -73,7 +73,7 @@ resnet = InceptionResnetV1(pretrained='vggface2').eval()
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 resnet = resnet.to(device)  # Move the model to the device
 
-video_capture = cv2.VideoCapture(1)
+video_capture = cv2.VideoCapture(2)
 start_time = 0
 fps = 0
 
@@ -96,19 +96,18 @@ while True:
     
 
     # Flip the frame horizontally
-    frame = cv2.flip(frame, 1)
+    # frame = cv2.flip(frame, 1)
     width, height = frame.shape[:2]
     scale = 1
     mini_frame = cv2.resize(frame, (height//scale, width//scale))
-    end_time = time.time()
-    fps = 1/ (end_time - start_time)
-    start_time = time.time()
         
     # Perform face detection using MTCNN
     boxes, probs = mtcnn.detect(mini_frame)
     face_frame = ''
     # Draw bounding boxes and landmarks (if available)
     if boxes is not None:
+        end_time = time.time()
+        fps = 1/ (end_time - start_time)
         for i, box in enumerate(boxes):
             x1, y1, x2, y2 = map(int, box)
             # left, top, right, bottom
@@ -127,6 +126,7 @@ while True:
                 
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
             print(y2,x2,x1,y2)
+        start_time = time.time()
                               
     cv2.putText(frame, f'FPS: {fps:.2f}', (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
     # Display the resulting frame

@@ -10,7 +10,7 @@ def cosine_similarity(embedding1, embedding2):
 
 if __name__ == "__main__":
     # Set up the training data and dataloaders
-    train_data = datasets.ImageFolder(root='faces_training', transform=transforms.Compose([
+    train_data = datasets.ImageFolder(root='faces_cropped_training', transform=transforms.Compose([
         transforms.Resize((160, 160)),
         transforms.RandomHorizontalFlip(),  # Data augmentation: Randomly flip horizontally
         transforms.RandomRotation(10),       # Data augmentation: Rotate up to 10 degrees
@@ -18,14 +18,14 @@ if __name__ == "__main__":
         transforms.ToTensor()
     ]))
 
-    val_data = datasets.ImageFolder(root='faces_validation', transform=transforms.Compose([
-        transforms.Resize((160, 160)),
-        transforms.ToTensor()
-    ]))
+    # val_data = datasets.ImageFolder(root='faces_validation', transform=transforms.Compose([
+    #     transforms.Resize((160, 160)),
+    #     transforms.ToTensor()
+    # ]))
 
     # Set up the model, optimizer, and loss function
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    resnet = InceptionResnetV1(pretrained='casia-webface').eval()
+    resnet = InceptionResnetV1(pretrained='vggface2').eval()
     resnet = resnet.to(device)  # Move the model to the device
     
     known_face_embeddings = []
@@ -47,5 +47,5 @@ if __name__ == "__main__":
             known_face_embeddings.append((output, name))
 
         # Save trained embeddings
-        with open('known_face_embeddings.pkl', 'wb') as f:
+        with open('known_face_embeddings_big.pkl', 'wb') as f:
             pickle.dump(known_face_embeddings, f)

@@ -122,6 +122,9 @@ while True:
     ret, frame = vid.read()
     frame = cv2.flip(frame,1)
     scale = 1
+    scale2 = 1
+    frame = cv2.resize(frame, (height//scale2, width//scale2))
+
     mini_frame = cv2.resize(frame, (height//scale, width//scale))
     mini_frame_copy = mp.Image(image_format = mp.ImageFormat.SRGB, data = mini_frame)
     # end_time = time.time()
