@@ -73,7 +73,7 @@ resnet = InceptionResnetV1(pretrained='vggface2').eval()
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 resnet = resnet.to(device)  # Move the model to the device
 
-video_capture = cv2.VideoCapture(2)
+video_capture = cv2.VideoCapture(1)
 start_time = 0
 fps = 0
 
@@ -103,9 +103,21 @@ while True:
         
     # Perform face detection using MTCNN
     boxes, probs = mtcnn.detect(mini_frame)
+    data = boxes, probs
     face_frame = ''
-    # Draw bounding boxes and landmarks (if available)
+    
     if boxes is not None:
+        # if len(probs) >= 2:
+        #     temp = []
+        #     for box, prob in boxes, probs:
+        #         print(prob)
+        #         if prob>=0.9:
+        #             temp.append(box)
+        #     boxes = temp
+        #     print(f'Boxes \ntype: {type(boxes)} len:{len(boxes)} ')
+        #     print(f'Probs \ntype: {type(probs)} len:{len(probs)} ')
+        #     break
+        boxes = boxes[probs > 0.85]
         end_time = time.time()
         fps = 1/ (end_time - start_time)
         for i, box in enumerate(boxes):
